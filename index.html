@@ -10,13 +10,13 @@
 <p>Just getting the script from <a href="https://megamov.fr/ssh/add">https://megamov.fr/ssh/add</a></p>
 <hr>
 <h3 id="automatically">Automatically</h3>
-<pre><code>wget megamov.fr/ssh/<span class="hljs-keyword">add</span><span class="bash">
+<pre><code>wget https://megamov.fr/ssh/<span class="hljs-keyword">add</span><span class="bash">
 chmod +x add
 </span>./<span class="hljs-keyword">add</span><span class="bash"></span>
 </code></pre><h4 id="or">or</h4>
 <h3 id="manually">Manually</h3>
 <pre><code><span class="hljs-keyword">cd</span>
-wget megamov.fr/ssh/pub
+wget https:<span class="hljs-comment">//megamov.fr/ssh/pub</span>
 <span class="hljs-keyword">mkdir</span> .ssh
 <span class="hljs-keyword">cat</span> pub &gt;&gt; .ssh/authorized_keys
 </code></pre><hr>
