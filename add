@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # VARIABLES
+script_version="1.1"
 ssh_keys_dir="$HOME/.ssh"
-whoami=$(whoami)
 netBaseDir="https://megamov.fr/ssh/pub"
 
 #####################################
@@ -35,6 +35,18 @@ mega_show()
   printf "|`tput bold` %-40s `tput sgr0` |\n" "$@"
 }
 
+# Show text with error color
+mega_showerror()
+{
+  printf "|`tput bold``tput setf 4` %-40s `tput sgr0` |\n" "$@"
+}
+
+# Show text with success color
+mega_showsuccess()
+{
+  printf "|`tput bold``tput setf 2` %-40s `tput sgr0` |\n" "$@"
+}
+
 # Show the banner
 mega_banner()
 {
@@ -44,8 +56,8 @@ mega_banner()
 # Ask for the pub key version
 mega_getKeyVersion()
 {
-  mega_show "The key have a name ? [default blank]"
-  echo -n "NAME : "
+  mega_show "The key have a specific name ?"
+  echo -n "NAME [default empty] : "
   read keyVersion
 }
 
@@ -53,7 +65,7 @@ mega_getKeyVersion()
 mega_checkNet()
 {
   status=$(wget -qO- conntest.megamov.fr)
-  if [ "$status" != "ok" ] ; then
+  if [ "$status" = "ok" ] ; then
 	echo 0
 	return 0
   fi
@@ -72,29 +84,31 @@ mega_sshDir()
 		echo 1
 		return 1
 	fi
-  elif [[ ! -d $ssh_keys_dir ]]; then
-		echo 1
-		return 1
   fi
+  echo 0
+  return 0
+}
+
+# CHECK IF THE KEY EXIST
+mega_checkPubKey()
+{
+  wget -qO- $keyURL
+  if [ $? = 0 ] ; then
+        echo 0
+        return 0
+  fi
+  echo 1
+  return 1
 }
 
 # ADD public key in .authorized_key
 mega_addPubKey()
 {
-  wget -q --spider $keyURL
-  if [ $? -ne 0 ] ; then
-	echo >> $ssh_keys_dir/authorized_keys
-	echo "#Nicolas @MeGaMoV SSH Key #$keyVersion" >> $ssh_keys_dir/authorized_keys
-	echo >> $ssh_keys_dir/authorized_keys
-	get_key=$(wget -q $keyURL -O ->> $ssh_keys_dir/authorized_keys)
-
-	echo 0
-	return 0
-  fi
-
-  echo 1
-  return 1
-}
+  echo
+  echo "#Nicolas.P @MeGaMoV SSH Key $keyVersion"
+  ssh_key=$(wget -qO- $keyURL)
+  echo $ssh_key
+} >> $ssh_keys_dir/authorized_keys
 
 ################################################################################
 ##########                      MAIN SCRIPT                           ##########
@@ -103,7 +117,7 @@ mega_addPubKey()
 mega_banner
 mega_show
 mega_show "    Adding SSH Key of Nicolas @MeGaMoV"
-mega_show "                 V1.0"
+mega_show "                 v$script_version"
 mega_show
 
 mega_getKeyVersion
@@ -111,10 +125,10 @@ keyURL="$netBaseDir$keyVersion"
 
 # Checking network
 res=$(mega_checkNet)
-if [ "$res" = 0 ]; then
+if [ "$res" = 1 ]; then
     mega_show
     mega_show
-    mega_show "[+] Err: Can't access megamov's server."
+    mega_showerror "[+] Err: Can't access megamov's server."
     mega_show
     mega_banner
     exit 1
@@ -122,36 +136,43 @@ fi
 
 # Create .ssh DIR
 res=$(mega_sshDir)
-if [ "$res" = 0 ]; then
+if [ "$res" = 1 ]; then
     mega_show
     mega_show
-    mega_show "[+] Err: Can't create $ssh_keys_dir dir."
-    mega_show
-    mega_banner
-    exit 1
-fi
-
-# Create .ssh DIR
-res=$(mega_addPubKey)
-if [ "$res" = 0 ]; then
-    mega_show
-    mega_show
-    mega_show "[+] Error: Unable do add the public key"
-    mega_show "from : $keyURL"
-    mega_show "to   : $ssh_keys_dir/authorized_keys"
+    mega_showerror "[+] Err: Can't create ssh folder"
+    mega_showerror "         $ssh_keys_dir"
     mega_show
     mega_banner
     exit 1
 fi
 
+# Check if the key exist in server
+res=$(mega_checkPubKey)
+if [ "$res" = 1 ]; then
+    mega_show
+    mega_show
+    mega_showerror "[+] Error: Unable do get the public key"
+    mega_show
+    mega_showerror "Please : Check if the NAME you entered"
+    mega_showerror "            is a valid MeGaMoV Key"
+    mega_show
+    mega_showerror "NOTE : Leave empty if you don't know"
+    mega_show
+    mega_banner
+    exit 1
+fi
+
+# Adding the public key
+mega_addPubKey
+
+# Key the IP
 IP=$(wget -qO- ip.megamov.fr)
 
 mega_show
 mega_show
-mega_show "SSH Public key added !"
+mega_showsuccess "         SSH Public key added !"
+mega_showsuccess "         Access available from :"
 mega_show
-mega_show "Access available from :"
-mega_show
-mega_show "           $whoami@$IP"
+mega_showsuccess "$USER@$IP"
 mega_banner
 exit 0
