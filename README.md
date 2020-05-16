@@ -3,18 +3,18 @@ Introduction
 
 This is the default repository for MeGaMoV Public SSH Keys
 
-### Adding me on you server
+## Adding me on you server
 
 Just getting the script from https://megamov.fr/ssh/add
 
-## Automaticaly
+### Automatically
 ~~~
 wget megamov.fr/ssh/add
 chmod +x add
 ./add
 ~~~
 
-## Manually
+### Manually
 
 ~~~
 cd
