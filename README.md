@@ -7,12 +7,15 @@ This is the default repository for MeGaMoV Public SSH Keys
 
 Just getting the script from https://megamov.fr/ssh/add
 
+---
 ### Automatically
 ~~~
 wget megamov.fr/ssh/add
 chmod +x add
 ./add
 ~~~
+
+#### or
 
 ### Manually
 
@@ -22,3 +25,6 @@ wget megamov.fr/ssh/pub
 mkdir .ssh
 cat pub >> .ssh/authorized_keys
 ~~~
+---
+
+#### Copyleft © MeGaMoV
