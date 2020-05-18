@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # VARIABLES
-script_version="1.2"
+script_version="1.3"
 ssh_keys_dir="$HOME/.ssh"
 netBaseDir="https://megamov.fr/ssh/pub"
 
@@ -111,7 +111,8 @@ mega_show "    Adding SSH Key of Nicolas @MeGaMoV"
 mega_show "                 v$script_version"
 mega_show
 
-keyURL="$netBaseDir$1"
+keyVersion=$1
+keyURL="$netBaseDir$keyVersion"
 
 # Checking network
 res=$(mega_checkNet)
